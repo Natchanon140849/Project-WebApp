@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cupcake">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Foodie House</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="min-h-screen bg-[#f7f4ee] text-base-content">
+
+<div class="navbar sticky top-0 z-50 bg-[#efe5d7]/95 backdrop-blur border-b border-[#d8ccb9] px-3 lg:px-8 min-h-16 shadow-sm">
+  <div class="flex-1 items-center gap-3">
+    <button class="btn btn-ghost btn-circle text-xl">☰</button>
+    <a href="customer-dashboard.html" class="text-2xl lg:text-3xl font-extrabold tracking-tight text-orange-600">
+      Foodie House
+    </a>
+  </div>
+ <section class="">
+  <div class="flex justify-center gap-6 overflow-x-auto whitespace-nowrap pb-2">
+    <a href="customer-dashboard.html" class="btn btn-sm rounded-full">Menu</a>
+    <a href="cart.html" class="btn btn-sm rounded-full">Cart</a>
+    <a href="my-orders.html" class="btn btn-sm rounded-full">Orders</a>
+  </div>
+</section>
+</div>
+
+<div class="max-w-5xl mx-auto mt-6" id="app"></div>
+<script src="app.js"></script>
+<script>
+function render(){
+  const c=getCart();
+  if(!c.length){
+    app.innerHTML = "<p class='text-center opacity-60 mt-10'>Cart is empty</p>";
+    return;
+  }
+  app.innerHTML = c.map(i=>`
+    <div class="card bg-white border border-[#e6dac8] shadow-md rounded-[1.5rem] p-4 mb-3 flex justify-between items-center">
+      <div class="flex items-center gap-4">
+        <img src="${i.image||''}" class="w-16 h-16 rounded-xl object-cover"/>
+        <div>
+          <h3 class="font-bold text-[#3d241a]">${i.name}</h3>
+          <p class="text-sm opacity-60">${i.price}฿ x ${i.qty}</p>
+        </div>
+      </div>
+      <div class="font-bold text-orange-600">${i.price*i.qty}฿</div>
+    </div>
+  `).join("") + `
+  <button onclick="checkout()" class="btn w-full bg-orange-600 text-white mt-4">Checkout</button>`;
+}
+
+function checkout(){
+  const c=getCart();
+  const o=getOrders();
+  const total=c.reduce((s,i)=>s+i.price*i.qty,0);
+  o.unshift({
+    id: Date.now(),
+    items: c,
+    status: "PENDING",
+    time: new Date().toLocaleString(),
+    total
+  });
+  saveOrders(o);
+  localStorage.removeItem("cart");
+  location.href="my-orders.html";
+}
+
+render();
+</script>
+</body></html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cupcake">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Foodie House</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="min-h-screen bg-[#f7f4ee] text-base-content">
+
+<div class="navbar sticky top-0 z-50 bg-[#efe5d7]/95 backdrop-blur border-b border-[#d8ccb9] px-3 lg:px-8 min-h-16 shadow-sm">
+  <div class="flex-1 items-center gap-3">
+    <button class="btn btn-ghost btn-circle text-xl">☰</button>
+    <a href="customer-dashboard.html" class="text-2xl lg:text-3xl font-extrabold tracking-tight text-orange-600">
+      Foodie House
+    </a>
+  </div>
+<section class="">
+  <div class="flex justify-center gap-6 overflow-x-auto whitespace-nowrap pb-2">
+    <a href="customer-dashboard.html" class="btn btn-sm rounded-full">Menu</a>
+    <a href="cart.html" class="btn btn-sm rounded-full">Cart</a>
+    <a href="my-orders.html" class="btn btn-sm rounded-full">Orders</a>
+  </div>
+</section>
+</div>
+
+
+
+
+
+<div class="max-w-5xl mx-auto mt-6" id="app"></div>
+<script src="app.js"></script>
+<script>
+function render(){
+  const orders=getOrders();
+  if(!orders.length){
+    app.innerHTML = "<p class='text-center opacity-60 mt-10'>No orders yet</p>";
+    return;
+  }
+  app.innerHTML = orders.map(o=>`
+    <div class="card bg-white border border-[#e6dac8] shadow-md rounded-[1.5rem] p-5 mb-4">
+      <div class="flex justify-between">
+        <div>
+          <h2 class="font-bold text-lg">Order #${o.id}</h2>
+          <p class="text-sm opacity-60">${o.time}</p>
+        </div>
+        <span class="badge ${statusBadge(o.status)}">${o.status}</span>
+      </div>
+      <div class="mt-3 font-semibold text-orange-600">${o.total}฿</div>
+      <a href="order-detail.html?id=${o.id}" class="btn btn-sm mt-3">View Detail</a>
+    </div>
+  `).join("");
+}
+render();
+</script>
+</body></html>
