@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cupcake">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Foodie House</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="min-h-screen bg-[#f7f4ee] text-base-content">
+
+<div class="navbar sticky top-0 z-50 bg-[#efe5d7]/95 backdrop-blur border-b border-[#d8ccb9] px-3 lg:px-8 min-h-16 shadow-sm">
+  <div class="flex-1 items-center gap-3">
+    <button class="btn btn-ghost btn-circle text-xl">☰</button>
+    <a href="customer-dashboard.html" class="text-2xl lg:text-3xl font-extrabold tracking-tight text-orange-600">
+      Foodie House
+    </a>
+  </div>
+  <section class="">
+  <div class="flex justify-center gap-6 overflow-x-auto whitespace-nowrap pb-2">
+    <a href="customer-dashboard.html" class="btn btn-sm rounded-full">Menu</a>
+    <a href="cart.html" class="btn btn-sm rounded-full">Cart</a>
+    <a href="my-orders.html" class="btn btn-sm rounded-full">Orders</a>
+  </div>
+</section>
+  </div>
+</div>
+
+
+
+<div class="max-w-3xl mx-auto mt-6" id="app"></div>
+<script src="app.js"></script>
+<script>
+const id=new URLSearchParams(location.search).get("id");
+const o=getOrders().find(x=>x.id==id);
+
+app.innerHTML = `
+  <div class="card bg-white border border-[#e6dac8] shadow-md rounded-[1.5rem] p-6">
+    <h1 class="text-xl font-bold mb-4">Order #${o.id}</h1>
+    ${o.items.map(i=>`
+      <div class="flex justify-between py-2 border-b">
+        <span>${i.name} x ${i.qty}</span>
+        <span>${i.price*i.qty}฿</span>
+      </div>
+    `).join("")}
+    <div class="mt-4 text-right font-bold text-lg text-orange-600">Total: ${o.total}฿</div>
+    <a href="payment.html?id=${o.id}" class="btn mt-4 w-full bg-orange-600 text-white">Go to Payment</a>
+  </div>
+`;
+</script>
+</body></html>
