@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cupcake">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Cook Orders</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="min-h-screen bg-[#f7f4ee] text-base-content">
+
+    <!-- Navbar -->
+    <div class="navbar bg-[#efe5d7]/95 border-b border-[#d8ccb9] shadow-sm px-3 lg:px-8">
+        <div class="flex-1">
+            <a class="text-2xl font-extrabold text-orange-600">Cook Orders</a>
+        </div>
+        <div class="flex-none gap-2">
+            <a href="/Project-WebApp/test_cooks/ck-dsb.html" class="btn rounded-full bg-white border border-[#d8ccb9] text-[#6d2f1d]">Back</a>
+            <button onclick="logoutStaff()" class="btn btn-outline btn-error rounded-full">Logout</button>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="p-4">
+        <div class="grid grid-cols-2 gap-4">
+            <div class="card bg-white border border-[#e6dac8] shadow-md rounded-[1.75rem]">
+                <div class="card-body p-5">
+                    <p class="text-sm text-[#6d2f1d]/60">Served Orders</p>
+                    <h2 id="servedCount" class="text-3xl font-extrabold text-orange-600">0</h2>
+                </div>
+            </div>
+            <div class="card bg-white border border-[#e6dac8] shadow-md rounded-[1.75rem]">
+                <div class="card-body p-5">
+                    <p class="text-sm text-[#6d2f1d]/60">Top Menu</p>
+                    <h2 id="topMenu" class="text-xl font-extrabold text-orange-600 truncate">-</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="px-4 pb-4 flex gap-2">
+        <button class="btn btn-sm" onclick="filterOrders('all')">All</button>
+        <button class="btn btn-sm" onclick="filterOrders('Pending')">Pending</button>
+        <button class="btn btn-sm" onclick="filterOrders('Cooking')">Cooking</button>
+        <button class="btn btn-sm" onclick="filterOrders('Serving')">Serving</button>
+    </div>
+
+    <!-- Orders -->
+    <main class="max-w-7xl mx-auto p-4">
+        <div id="orders" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+    </main>
+
+    <script>
+        // ===== MOCK DATA =====
+        let orders = [
+            {
+                id: 1001,
+                table: "A01",
+                status: "Pending",
+                createdAt: "2026-03-26T10:00:00",
+                items: [
+                    { name: "Chicken Rice Bowl", qty: 2 },
+                    { name: "Iced Cola", qty: 1 }
+                ]
+            },
+            {
+                id: 1002,
+                table: "B03",
+                status: "Cooking",
+                createdAt: "2026-03-26T10:05:00",
+                items: [
+                    { name: "BBQ Bacon Burger", qty: 1 },
+                    { name: "French Fries", qty: 1 }
+                ]
+            }
+        ];
+
+        let currentFilter = "all";
+
+        // ===== RENDER =====
+        function renderOrders() {
+            const container = document.getElementById("orders");
+            container.innerHTML = "";
+
+            let filtered = orders;
+
+            if (currentFilter !== "all") {
+                filtered = orders.filter(o => o.status === currentFilter);
+            }
+
+            // sort by time
+            filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+            filtered.forEach(order => {
+                const itemsHTML = order.items.map(i =>
+                    `<div class="flex justify-between"><span>${i.name}</span><span>x${i.qty}</span></div>`
+                ).join("");
+
+                container.innerHTML += `
+        <div class="card bg-white shadow rounded-xl">
+            <div class="card-body">
+            <div class="flex justify-between">
+                <div>
+                <h3 class="font-bold">Order #${order.id}</h3>
+                <p class="text-sm opacity-60">Table ${order.table}</p>
+                </div>
+                <span class="badge">${order.status}</span>
+            </div>
+
+            <div class="mt-2">${itemsHTML}</div>
+
+            <div class="card-actions justify-end mt-3">
+                ${order.status !== "Cooking" ? `
+                <button class="btn btn-sm btn-warning rounded-full"
+                    onclick="updateStatus(${order.id}, 'Cooking')">Cooking</button>` : ""}
+
+                ${order.status !== "Serving" ? `
+                <button class="btn btn-sm btn-success rounded-full"
+                    onclick="updateStatus(${order.id}, 'Serving')">Serving</button>` : ""}
+            </div>
+            </div>
+        </div>
+        `;
+            });
+
+            updateDashboard();
+        }
+
+        // ===== UPDATE STATUS =====
+        function updateStatus(id, status) {
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                order.status = status;
+                renderOrders();
+            }
+        }
+
+        // ===== FILTER =====
+        function filterOrders(status) {
+            currentFilter = status;
+            renderOrders();
+        }
+
+        // ===== DASHBOARD =====
+        function updateDashboard() {
+            const served = orders.filter(o => o.status === "Serving").length;
+            document.getElementById("servedCount").innerText = served;
+
+            const menuCount = {};
+            orders.forEach(o => {
+                o.items.forEach(i => {
+                    menuCount[i.name] = (menuCount[i.name] || 0) + i.qty;
+                });
+            });
+
+            let top = "-";
+            let max = 0;
+            for (let item in menuCount) {
+                if (menuCount[item] > max) {
+                    max = menuCount[item];
+                    top = item;
+                }
+            }
+
+            document.getElementById("topMenu").innerText = top;
+        }
+
+        // ===== AUTH MOCK =====
+        function logout() {
+            alert("Logged out");
+        }
+
+        // ===== AUTO REFRESH =====
+        setInterval(renderOrders, 5000);
+
+        // ===== INIT =====
+        renderOrders();
+    </script>
+
+</body>
+
+</html>
